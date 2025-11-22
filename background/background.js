@@ -1,6 +1,7 @@
 
 import { getBlockedSites, getSettings, getCategories, getSchedules, incrementBlockCount } from '../scripts/storage.js';
 import { urlMatchesPattern, extractDomain, isTimeInSchedule } from '../scripts/utils.js';
+import { DEFAULT_SETTINGS, MESSAGE_ACTIONS, ASSETS, LIMITS } from '../scripts/constants.js';
 
 
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -23,18 +24,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
 
 async function initializeDefaults() {
-  const defaultSettings = {
-    workMode: false,
-    focusMode: false,
-    focusEndTime: null,
-    focusDuration: 25,
-    password: null,
-    passwordEnabled: false,
-    notifications: true,
-    darkMode: false
-  };
-
-  await chrome.storage.local.set({ settings: defaultSettings });
+  await chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
   console.log('Default settings initialized');
 }
 
@@ -80,7 +70,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       
       chrome.notifications.create({
         type: 'basic',
-        iconUrl: '../assets/icons/icon48.png',
+        iconUrl: ASSETS.ICON_48,
         title: 'FocusGuard',
         message: `Blocked ${domain}`
       });
@@ -200,7 +190,7 @@ async function updateBlockingRules() {
     try {
       await chrome.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: existingRuleIds,
-        addRules: allRules.slice(0, 5000) 
+        addRules: allRules.slice(0, LIMITS.MAX_DYNAMIC_RULES)
       });
 
       const updatedRules = await chrome.declarativeNetRequest.getDynamicRules();
@@ -238,29 +228,29 @@ function updateBadge(count) {
 
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'ping') {
+  if (message.action === MESSAGE_ACTIONS.PING) {
     sendResponse({ status: 'alive', timestamp: Date.now() });
     return true;
   }
 
-  if (message.action === 'updateBlockRules') {
+  if (message.action === MESSAGE_ACTIONS.UPDATE_BLOCK_RULES) {
     updateBlockingRules().then(() => {
       sendResponse({ success: true });
     }).catch(error => {
       console.error('Error in updateBlockRules message handler:', error);
       sendResponse({ success: false, error: error.message });
     });
-    return true; 
+    return true;
   }
 
-  if (message.action === 'stopFocusMode') {
+  if (message.action === MESSAGE_ACTIONS.STOP_FOCUS_MODE) {
     stopFocusMode().then(() => {
       sendResponse({ success: true });
     });
     return true;
   }
 
-  if (message.action === 'startFocusMode') {
+  if (message.action === MESSAGE_ACTIONS.START_FOCUS_MODE) {
     startFocusMode(message.duration).then(() => {
       sendResponse({ success: true });
     });
@@ -287,12 +277,12 @@ async function startFocusMode(duration = 25) {
   await updateBlockingRules();
 
   
-  chrome.notifications.create({
-    type: 'basic',
-    iconUrl: '../assets/icons/icon48.png',
-    title: 'Focus Mode Started',
-    message: `Focus session: ${duration} minutes`
-  });
+   chrome.notifications.create({
+     type: 'basic',
+     iconUrl: ASSETS.ICON_48,
+     title: 'Focus Mode Started',
+     message: `Focus session: ${duration} minutes`
+   });
 
   console.log('Focus mode started:', duration, 'minutes');
 }
@@ -321,12 +311,12 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     await stopFocusMode();
 
     
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: '../assets/icons/icon48.png',
-      title: 'Focus Session Complete!',
-      message: 'Great job! Time for a break.'
-    });
+     chrome.notifications.create({
+       type: 'basic',
+       iconUrl: ASSETS.ICON_48,
+       title: 'Focus Session Complete!',
+       message: 'Great job! Time for a break.'
+     });
   }
 
   if (alarm.name === 'checkSchedules') {

@@ -43,7 +43,6 @@ function checkAndBlockTab(tabId, url) {
 		const urlObj = new URL(url);
 		const hostname = urlObj.hostname.replace(/^www\./, "");
 		const pathname = urlObj.pathname;
-		const fullPath = hostname + pathname;
 
 		for (const blockedPattern of blockedUrls) {
 			let isBlocked = false;
@@ -83,15 +82,12 @@ function checkAndBlockTab(tabId, url) {
 }
 
 async function updateBlockList() {
-	console.log("FocusGuard: Updating block list...");
-
 	const data = await chrome.storage.local.get([
 		"blockedSites",
 		"settings",
 		"categories",
 	]);
 	const sites = data.blockedSites || [];
-	const settings = data.settings || {};
 	const categories = data.categories || {};
 
 	let urls = sites.filter((s) => s.enabled !== false).map((s) => s.url);

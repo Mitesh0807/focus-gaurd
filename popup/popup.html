@@ -1,68 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusGuard</title>
-  <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-  <div class="container">
-    <!-- Header -->
-    <header>
-      <h1>🛡️ FocusGuard</h1>
-      <div class="stats-mini">
-        <span id="blocksToday">0 blocks today</span>
-      </div>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusGuard</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header>
+        <h1>🛡️ FocusGuard</h1>
+        <div class="stats-mini">
+          <span id="blocksToday">0 blocks today</span>
+        </div>
+      </header>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions">
-      <button id="workModeBtn" class="btn btn-primary">
-        <span class="icon">💼</span> Work Mode
-      </button>
-      <button id="focusModeBtn" class="btn btn-secondary">
-        <span class="icon">⏱️</span> Focus Mode
-      </button>
-    </section>
+      <!-- Quick Actions -->
+      <section class="quick-actions">
+        <button id="workModeBtn" class="btn btn-primary">
+          <span class="icon">💼</span> Work Mode
+        </button>
+        <button id="focusModeBtn" class="btn btn-secondary">
+          <span class="icon">⏱️</span> Focus Mode
+        </button>
+      </section>
 
-    <!-- Add Website Section -->
-    <section class="add-website">
-      <h3>Block Website or Path</h3>
-      <div class="input-group">
-        <input
-          type="text"
-          id="websiteInput"
-          placeholder="example.com or youtube.com/shorts"
-          autocomplete="off"
-        />
-        <button id="addBtn" class="btn btn-add">Add</button>
-      </div>
-      <p class="hint">Examples: facebook.com, youtube.com/shorts, reddit.com/r/gaming</p>
-      <button id="blockCurrentBtn" class="btn btn-block-current">
-        Block Current Site
-      </button>
-    </section>
+      <!-- Add Website Section -->
+      <section class="add-website">
+        <h3>Block Website or Path</h3>
+        <div class="input-group">
+          <input
+            type="text"
+            id="websiteInput"
+            placeholder="example.com or youtube.com/shorts"
+            autocomplete="off"
+          />
+          <button id="addBtn" class="btn btn-add">Add</button>
+        </div>
+        <p class="hint">
+          Examples: facebook.com, youtube.com/shorts, reddit.com/r/gaming
+        </p>
+        <button id="blockCurrentBtn" class="btn btn-block-current">
+          Block Current Site
+        </button>
+      </section>
 
-    <!-- Blocked Sites List -->
-    <section class="blocked-sites">
-      <div class="section-header">
-        <h3>Blocked Sites (<span id="blockedCount">0</span>)</h3>
-        <button id="clearAllBtn" class="btn-text">Clear All</button>
-      </div>
-      <div id="blockedList" class="site-list">
-        <p class="empty-state">No sites blocked yet. Add one above!</p>
-      </div>
-    </section>
+      <!-- Blocked Sites List -->
+      <section class="blocked-sites">
+        <div class="section-header">
+          <h3>Blocked Sites (<span id="blockedCount">0</span>)</h3>
+          <button id="clearAllBtn" class="btn-text">Clear All</button>
+        </div>
+        <div id="blockedList" class="site-list">
+          <p class="empty-state">No sites blocked yet. Add one above!</p>
+        </div>
+      </section>
 
-    <!-- Footer -->
-    <footer>
-      <button id="settingsBtn" class="btn-text">⚙️ Settings</button>
-      <button id="statsBtn" class="btn-text">📊 Statistics</button>
-      <button id="debugBtn" class="btn-text">🔧 Debug</button>
-    </footer>
-  </div>
+      <!-- Footer -->
+      <footer>
+        <button id="settingsBtn" class="btn-text">⚙️ Settings</button>
+        <button id="statsBtn" class="btn-text">📊 Statistics</button>
+        <button id="debugBtn" class="btn-text">🔧 Debug</button>
+      </footer>
+    </div>
 
-  <script src="popup.js" type="module"></script>
-</body>
+    <script src="popup.js" type="module"></script>
+  </body>
 </html>

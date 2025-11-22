@@ -1,5 +1,6 @@
 
 import { getBlockedSites, getSettings, getCategories, addBlockedSite } from '../scripts/storage.js';
+import { MESSAGE_ACTIONS } from '../scripts/constants.js';
 
 
 async function loadDebugInfo() {
@@ -105,8 +106,8 @@ function checkExtensionStatus() {
   const status = document.getElementById('status');
   const messages = [];
 
-  
-  chrome.runtime.sendMessage({ action: 'ping' }, (response) => {
+
+   chrome.runtime.sendMessage({ action: MESSAGE_ACTIONS.PING }, (response) => {
     if (chrome.runtime.lastError) {
       messages.push(`<div class="status error">❌ Background script not responding: ${chrome.runtime.lastError.message}</div>`);
     } else {
@@ -124,8 +125,8 @@ async function testBlockInstagram() {
     status.innerHTML = '<div class="status info">Adding instagram.com to blocklist...</div>';
     await addBlockedSite('instagram.com');
 
-    status.innerHTML += '<div class="status info">Updating blocking rules...</div>';
-    const response = await chrome.runtime.sendMessage({ action: 'updateBlockRules' });
+     status.innerHTML += '<div class="status info">Updating blocking rules...</div>';
+     const response = await chrome.runtime.sendMessage({ action: MESSAGE_ACTIONS.UPDATE_BLOCK_RULES });
 
     status.innerHTML += '<div class="status success">✅ Instagram added and rules updated!</div>';
 
@@ -162,10 +163,10 @@ async function fixBlocking() {
     status.innerHTML = '<div class="status info">Reloading blocking rules...</div>';
 
     
-    const response = await Promise.race([
-      chrome.runtime.sendMessage({ action: 'updateBlockRules' }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: Background script not responding')), 5000))
-    ]);
+     const response = await Promise.race([
+       chrome.runtime.sendMessage({ action: MESSAGE_ACTIONS.UPDATE_BLOCK_RULES }),
+       new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: Background script not responding')), 5000))
+     ]);
 
     if (response && response.success) {
       status.innerHTML += '<div class="status success">✅ Blocking rules reloaded!</div>';

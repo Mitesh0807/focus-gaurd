@@ -1,4 +1,5 @@
-// Normalize URL to a consistent format
+import { TIME } from "./constants.js";
+
 export function normalizeUrl(input) {
 	let url = input.trim().toLowerCase();
 
@@ -84,22 +85,22 @@ export function formatDate(timestamp) {
 	const now = new Date();
 	const diff = now - date;
 
-	if (diff < 60000) {
+	if (diff < TIME.MINUTE) {
 		return "just now";
 	}
 
-	if (diff < 3600000) {
-		const minutes = Math.floor(diff / 60000);
+	if (diff < TIME.HOUR) {
+		const minutes = Math.floor(diff / TIME.MINUTE);
 		return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
 	}
 
-	if (diff < 86400000) {
-		const hours = Math.floor(diff / 3600000);
+	if (diff < TIME.DAY) {
+		const hours = Math.floor(diff / TIME.HOUR);
 		return `${hours} hour${hours > 1 ? "s" : ""} ago`;
 	}
 
-	if (diff < 604800000) {
-		const days = Math.floor(diff / 86400000);
+	if (diff < TIME.WEEK) {
+		const days = Math.floor(diff / TIME.DAY);
 		return `${days} day${days > 1 ? "s" : ""} ago`;
 	}
 
