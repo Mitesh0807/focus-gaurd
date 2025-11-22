@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "FocusGuard",
+  "version": "1.0.0",
+  "description": "Block distracting websites, enforce focus time, and track productivity metrics directly in your browser.",
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    },
+    "default_title": "FocusGuard"
+  },
+  "background": {
+    "service_worker": "background/background-tabs.js"
+  },
+  "permissions": [
+    "storage",
+    "tabs",
+    "alarms",
+    "notifications",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "options_page": "pages/options.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["pages/blocked.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
