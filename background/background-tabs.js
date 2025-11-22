@@ -1,9 +1,9 @@
-// FocusGuard - Using tabs API for blocking since declarativeNetRequest isn't working
+
 console.log('FocusGuard: Tabs-based blocker loading...');
 
 let blockedUrls = [];
 
-// Initialize
+
 chrome.runtime.onInstalled.addListener(async (details) => {
   console.log('FocusGuard: Installed/Updated', details.reason);
 
@@ -19,21 +19,21 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   await updateBlockList();
 });
 
-// Listen for tab updates
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'loading' && changeInfo.url) {
     checkAndBlockTab(tabId, changeInfo.url);
   }
 });
 
-// Listen for tab creation
+
 chrome.tabs.onCreated.addListener((tab) => {
   if (tab.pendingUrl) {
     checkAndBlockTab(tab.id, tab.pendingUrl);
   }
 });
 
-// Check if tab should be blocked
+
 function checkAndBlockTab(tabId, url) {
   try {
     const urlObj = new URL(url);
@@ -45,21 +45,21 @@ function checkAndBlockTab(tabId, url) {
       let isBlocked = false;
       let matchedPattern = blockedPattern;
 
-      // Check if pattern includes a path (contains /)
+      
       if (blockedPattern.includes('/')) {
-        // Path-based blocking (e.g., "youtube.com/shorts")
+        
         const patternHost = blockedPattern.split('/')[0];
         const patternPath = '/' + blockedPattern.split('/').slice(1).join('/');
 
-        // Check if hostname matches
+        
         if (hostname === patternHost || hostname.endsWith('.' + patternHost)) {
-          // Check if path matches
+          
           if (patternPath === '/*' || pathname.startsWith(patternPath)) {
             isBlocked = true;
           }
         }
       } else {
-        // Domain-only blocking (e.g., "facebook.com")
+        
         if (hostname === blockedPattern || hostname.endsWith('.' + blockedPattern)) {
           isBlocked = true;
         }
@@ -68,22 +68,22 @@ function checkAndBlockTab(tabId, url) {
       if (isBlocked) {
         console.log('FocusGuard: Blocking', url, '(matched:', matchedPattern, ')');
 
-        // Redirect to block page
+        
         chrome.tabs.update(tabId, {
           url: chrome.runtime.getURL('pages/blocked.html') + '?site=' + encodeURIComponent(matchedPattern)
         });
 
-        // Increment stats
+        
         incrementStats(matchedPattern);
         return;
       }
     }
   } catch (error) {
-    // Ignore invalid URLs
+    
   }
 }
 
-// Update block list from storage
+
 async function updateBlockList() {
   console.log('FocusGuard: Updating block list...');
 
@@ -94,7 +94,7 @@ async function updateBlockList() {
 
   let urls = sites.filter(s => s.enabled !== false).map(s => s.url);
 
-  // Add enabled categories
+  
   Object.values(categories).forEach(cat => {
     if (cat.enabled) {
       urls.push(...cat.sites);
@@ -107,7 +107,7 @@ async function updateBlockList() {
   updateBadge(blockedUrls.length);
 }
 
-// Increment stats
+
 async function incrementStats(url) {
   const data = await chrome.storage.local.get(['stats']);
   const stats = data.stats || { blocksToday: 0, totalBlocks: 0, lastResetDate: new Date().toDateString(), blockHistory: [] };
@@ -130,7 +130,7 @@ async function incrementStats(url) {
   await chrome.storage.local.set({ stats });
 }
 
-// Update badge
+
 function updateBadge(count) {
   if (count > 0) {
     chrome.action.setBadgeText({ text: count.toString() });
@@ -140,7 +140,7 @@ function updateBadge(count) {
   }
 }
 
-// Get default categories
+
 function getDefaultCategories() {
   return {
     socialMedia: {
@@ -171,7 +171,7 @@ function getDefaultCategories() {
   };
 }
 
-// Listen for messages
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('FocusGuard: Message received:', message.action);
 
@@ -192,7 +192,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// Listen for storage changes to automatically update block list
+
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local') {
     if (changes.blockedSites || changes.categories || changes.settings) {
@@ -202,13 +202,13 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-// Also update on startup
+
 chrome.runtime.onStartup.addListener(async () => {
   console.log('FocusGuard: Browser started, updating block list');
   await updateBlockList();
 });
 
-// Initialize block list immediately when service worker loads
+
 updateBlockList();
 
 console.log('FocusGuard: Tabs-based blocker loaded successfully');

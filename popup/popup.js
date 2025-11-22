@@ -1,8 +1,8 @@
-// Import utilities
+
 import { getBlockedSites, addBlockedSite, removeBlockedSite, clearAllBlockedSites, getSettings, updateSettings, getStats } from '../scripts/storage.js';
 import { normalizeUrl, isValidUrl } from '../scripts/utils.js';
 
-// DOM Elements
+
 const websiteInput = document.getElementById('websiteInput');
 const addBtn = document.getElementById('addBtn');
 const blockCurrentBtn = document.getElementById('blockCurrentBtn');
@@ -15,7 +15,7 @@ const settingsBtn = document.getElementById('settingsBtn');
 const statsBtn = document.getElementById('statsBtn');
 const blocksToday = document.getElementById('blocksToday');
 
-// Initialize popup
+
 async function init() {
   await loadBlockedSites();
   await loadStats();
@@ -23,13 +23,13 @@ async function init() {
   setupEventListeners();
 }
 
-// Load blocked sites
+
 async function loadBlockedSites() {
   const sites = await getBlockedSites();
   renderBlockedSites(sites);
 }
 
-// Render blocked sites
+
 function renderBlockedSites(sites) {
   blockedCount.textContent = sites.length;
 
@@ -45,43 +45,43 @@ function renderBlockedSites(sites) {
     </div>
   `).join('');
 
-  // Add event listeners to remove buttons
+  
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', handleRemoveSite);
   });
 }
 
-// Load stats
+
 async function loadStats() {
   const stats = await getStats();
   blocksToday.textContent = `${stats.blocksToday || 0} blocks today`;
 }
 
-// Load settings
+
 async function loadSettings() {
   const settings = await getSettings();
 
-  // Apply dark mode
+  
   if (settings.darkMode) {
     document.body.classList.add('dark-mode');
   } else {
     document.body.classList.remove('dark-mode');
   }
 
-  // Update work mode button state
+  
   if (settings.workMode) {
     workModeBtn.classList.add('active');
     workModeBtn.innerHTML = '<span class="icon">✓</span> Work Mode ON';
   }
 
-  // Update focus mode button state
+  
   if (settings.focusMode) {
     focusModeBtn.classList.add('active');
     focusModeBtn.innerHTML = '<span class="icon">⏱️</span> Focus Active';
   }
 }
 
-// Setup event listeners
+
 function setupEventListeners() {
   addBtn.addEventListener('click', handleAddSite);
   websiteInput.addEventListener('keypress', (e) => {
@@ -98,7 +98,7 @@ function setupEventListeners() {
   });
 }
 
-// Handle add site
+
 async function handleAddSite() {
   const input = websiteInput.value.trim();
 
@@ -120,14 +120,14 @@ async function handleAddSite() {
     await loadBlockedSites();
     showNotification('Site blocked successfully!', 'success');
 
-    // Notify background script to update rules
+    
     chrome.runtime.sendMessage({ action: 'updateBlockRules' });
   } catch (error) {
     showNotification(error.message, 'error');
   }
 }
 
-// Handle block current site
+
 async function handleBlockCurrentSite() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -139,7 +139,7 @@ async function handleBlockCurrentSite() {
 
     const url = new URL(tab.url);
 
-    // Don't block chrome:// or extension pages
+    
     if (url.protocol === 'chrome:' || url.protocol === 'chrome-extension:') {
       showNotification('Cannot block browser pages', 'error');
       return;
@@ -150,17 +150,17 @@ async function handleBlockCurrentSite() {
     await loadBlockedSites();
     showNotification(`Blocked ${domain}`, 'success');
 
-    // Notify background script to update rules
+    
     chrome.runtime.sendMessage({ action: 'updateBlockRules' });
 
-    // Close the tab
+    
     chrome.tabs.remove(tab.id);
   } catch (error) {
     showNotification(error.message, 'error');
   }
 }
 
-// Handle remove site
+
 async function handleRemoveSite(e) {
   const url = e.target.dataset.url;
 
@@ -169,14 +169,14 @@ async function handleRemoveSite(e) {
     await loadBlockedSites();
     showNotification('Site unblocked', 'success');
 
-    // Notify background script to update rules
+    
     chrome.runtime.sendMessage({ action: 'updateBlockRules' });
   } catch (error) {
     showNotification(error.message, 'error');
   }
 }
 
-// Handle clear all
+
 async function handleClearAll() {
   if (!confirm('Are you sure you want to remove all blocked sites?')) {
     return;
@@ -187,14 +187,14 @@ async function handleClearAll() {
     await loadBlockedSites();
     showNotification('All sites unblocked', 'success');
 
-    // Notify background script to update rules
+    
     chrome.runtime.sendMessage({ action: 'updateBlockRules' });
   } catch (error) {
     showNotification(error.message, 'error');
   }
 }
 
-// Handle toggle work mode
+
 async function handleToggleWorkMode() {
   const settings = await getSettings();
   const newWorkMode = !settings.workMode;
@@ -211,37 +211,37 @@ async function handleToggleWorkMode() {
     showNotification('Work Mode disabled', 'success');
   }
 
-  // Notify background script
+  
   chrome.runtime.sendMessage({ action: 'updateBlockRules' });
 }
 
-// Handle toggle focus mode
+
 async function handleToggleFocusMode() {
   const settings = await getSettings();
 
   if (settings.focusMode) {
-    // Stop focus mode
+    
     await updateSettings({ focusMode: false, focusEndTime: null });
     focusModeBtn.classList.remove('active');
     focusModeBtn.innerHTML = '<span class="icon">⏱️</span> Focus Mode';
     showNotification('Focus Mode stopped', 'success');
 
-    // Notify background script
+    
     chrome.runtime.sendMessage({ action: 'stopFocusMode' });
   } else {
-    // Start focus mode - open options page to configure
+    
     chrome.runtime.openOptionsPage();
   }
 }
 
-// Show notification
+
 function showNotification(message, type = 'info') {
-  // Simple alert for now - can be enhanced with custom UI
+  
   if (type === 'error') {
     console.error(message);
   }
-  // Could add a toast notification system here
+  
 }
 
-// Initialize on load
+
 document.addEventListener('DOMContentLoaded', init);

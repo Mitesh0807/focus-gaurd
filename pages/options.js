@@ -1,13 +1,13 @@
-// Import utilities
+
 import { getSettings, updateSettings, getCategories, updateCategory, getSchedules, addSchedule, removeSchedule, getStats, getBlockedSites, addBlockedSite, removeBlockedSite, clearAllBlockedSites } from '../scripts/storage.js';
 import { formatDate, formatTime, normalizeUrl, isValidUrl } from '../scripts/utils.js';
 
-// State
+
 let selectedDuration = 25;
 let focusTimer = null;
 let focusTimeRemaining = 0;
 
-// Initialize
+
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
@@ -21,52 +21,52 @@ async function init() {
   updateFocusTimer();
 }
 
-// Setup tab navigation
+
 function setupTabs() {
   const tabs = document.querySelectorAll('.tab');
   const tabContents = document.querySelectorAll('.tab-content');
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      // Remove active class from all tabs and contents
+      
       tabs.forEach(t => t.classList.remove('active'));
       tabContents.forEach(c => c.classList.remove('active'));
 
-      // Add active class to clicked tab
+      
       tab.classList.add('active');
 
-      // Show corresponding content
+      
       const tabId = tab.dataset.tab + '-tab';
       document.getElementById(tabId).classList.add('active');
     });
   });
 }
 
-// Load settings
+
 async function loadSettings() {
   const settings = await getSettings();
 
-  // Dark mode
+  
   document.getElementById('darkMode').checked = settings.darkMode || false;
 
-  // Apply dark mode immediately
+  
   if (settings.darkMode) {
     document.body.classList.add('dark-mode');
   } else {
     document.body.classList.remove('dark-mode');
   }
 
-  // Notifications
+  
   document.getElementById('notifications').checked = settings.notifications !== false;
 
-  // Password
+  
   document.getElementById('passwordEnabled').checked = settings.passwordEnabled || false;
   if (settings.passwordEnabled) {
     document.getElementById('passwordSection').style.display = 'block';
   }
 }
 
-// Load blocked sites
+
 async function loadBlockedSites() {
   const sites = await getBlockedSites();
   const sitesList = document.getElementById('sitesList');
@@ -98,13 +98,13 @@ async function loadBlockedSites() {
     `;
   }).join('');
 
-  // Add event listeners to remove buttons
+  
   document.querySelectorAll('.btn-remove').forEach(btn => {
     btn.addEventListener('click', handleRemoveSiteOptions);
   });
 }
 
-// Handle add site from options page
+
 async function handleAddSiteOptions() {
   const input = document.getElementById('siteInputOptions');
   const url = input.value.trim();
@@ -126,14 +126,14 @@ async function handleAddSiteOptions() {
     input.value = '';
     await loadBlockedSites();
 
-    // Notify background script
+    
     chrome.runtime.sendMessage({ action: 'updateBlockRules' });
   } catch (error) {
     alert(error.message);
   }
 }
 
-// Handle remove site from options page
+
 async function handleRemoveSiteOptions(e) {
   const url = e.target.dataset.url;
 
@@ -142,7 +142,7 @@ async function handleRemoveSiteOptions(e) {
       await removeBlockedSite(url);
       await loadBlockedSites();
 
-      // Notify background script
+      
       chrome.runtime.sendMessage({ action: 'updateBlockRules' });
     } catch (error) {
       alert(error.message);
@@ -150,14 +150,14 @@ async function handleRemoveSiteOptions(e) {
   }
 }
 
-// Handle clear all sites
+
 async function handleClearAllSites() {
   if (confirm('Are you sure you want to remove ALL blocked sites? This cannot be undone.')) {
     try {
       await clearAllBlockedSites();
       await loadBlockedSites();
 
-      // Notify background script
+      
       chrome.runtime.sendMessage({ action: 'updateBlockRules' });
     } catch (error) {
       alert(error.message);
@@ -165,7 +165,7 @@ async function handleClearAllSites() {
   }
 }
 
-// Load categories
+
 async function loadCategories() {
   const categories = await getCategories();
   const categoriesList = document.getElementById('categoriesList');
@@ -185,24 +185,24 @@ async function loadCategories() {
     </div>
   `).join('');
 
-  // Add event listeners
+  
   document.querySelectorAll('.category-toggle').forEach(toggle => {
     toggle.addEventListener('change', handleCategoryToggle);
   });
 }
 
-// Handle category toggle
+
 async function handleCategoryToggle(e) {
   const categoryId = e.target.dataset.category;
   const enabled = e.target.checked;
 
   await updateCategory(categoryId, { enabled });
 
-  // Notify background script
+  
   chrome.runtime.sendMessage({ action: 'updateBlockRules' });
 }
 
-// Load schedules
+
 async function loadSchedules() {
   const schedules = await getSchedules();
   const schedulesList = document.getElementById('schedulesList');
@@ -236,7 +236,7 @@ async function loadSchedules() {
   }).join('');
 }
 
-// Delete schedule (make it global for onclick)
+
 window.deleteSchedule = async function(scheduleId) {
   if (confirm('Are you sure you want to delete this schedule?')) {
     await removeSchedule(scheduleId);
@@ -245,20 +245,20 @@ window.deleteSchedule = async function(scheduleId) {
   }
 };
 
-// Load stats
+
 async function loadStats() {
   const stats = await getStats();
 
-  // Update stats tab
+  
   document.getElementById('statBlocksToday').textContent = stats.blocksToday || 0;
   document.getElementById('statTotalBlocks').textContent = stats.totalBlocks || 0;
 
-  // Estimate time saved (assume 10 min per block)
+  
   const minutesSaved = (stats.totalBlocks || 0) * 10;
   const hoursSaved = Math.floor(minutesSaved / 60);
   document.getElementById('statTimeSaved').textContent = hoursSaved + 'h';
 
-  // Recent blocks
+  
   const recentBlocksList = document.getElementById('recentBlocksList');
   if (!stats.blockHistory || stats.blockHistory.length === 0) {
     recentBlocksList.innerHTML = '<p class="empty-state">No blocks recorded yet</p>';
@@ -272,38 +272,38 @@ async function loadStats() {
     `).join('');
   }
 
-  // Focus mode stats
+  
   document.getElementById('sessionsToday').textContent = stats.focusSessionsToday || 0;
   document.getElementById('totalSessions').textContent = stats.totalFocusSessions || 0;
   document.getElementById('currentStreak').textContent = stats.focusStreak || 0;
 }
 
-// Setup event listeners
+
 function setupEventListeners() {
-  // General settings
+  
   document.getElementById('darkMode').addEventListener('change', handleDarkModeToggle);
   document.getElementById('notifications').addEventListener('change', handleNotificationsToggle);
   document.getElementById('passwordEnabled').addEventListener('change', handlePasswordToggle);
   document.getElementById('setPasswordBtn').addEventListener('click', handleSetPassword);
 
-  // Data management
+  
   document.getElementById('exportBtn').addEventListener('click', handleExport);
   document.getElementById('importBtn').addEventListener('click', handleImport);
   document.getElementById('clearDataBtn').addEventListener('click', handleClearData);
 
-  // Blocked sites
+  
   document.getElementById('addSiteBtn').addEventListener('click', handleAddSiteOptions);
   document.getElementById('siteInputOptions').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleAddSiteOptions();
   });
   document.getElementById('clearAllSitesBtn').addEventListener('click', handleClearAllSites);
 
-  // Schedules
+  
   document.getElementById('addScheduleBtn').addEventListener('click', showScheduleModal);
   document.getElementById('cancelScheduleBtn').addEventListener('click', hideScheduleModal);
   document.getElementById('saveScheduleBtn').addEventListener('click', handleSaveSchedule);
 
-  // Focus mode
+  
   document.getElementById('startFocusBtn').addEventListener('click', handleStartFocus);
   document.getElementById('stopFocusBtn').addEventListener('click', handleStopFocus);
 
@@ -312,12 +312,12 @@ function setupEventListeners() {
   });
 }
 
-// Handle dark mode toggle
+
 async function handleDarkModeToggle(e) {
   const isDark = e.target.checked;
   await updateSettings({ darkMode: isDark });
 
-  // Apply dark mode immediately
+  
   if (isDark) {
     document.body.classList.add('dark-mode');
   } else {
@@ -325,18 +325,18 @@ async function handleDarkModeToggle(e) {
   }
 }
 
-// Handle notifications toggle
+
 async function handleNotificationsToggle(e) {
   await updateSettings({ notifications: e.target.checked });
 }
 
-// Handle password toggle
+
 function handlePasswordToggle(e) {
   const passwordSection = document.getElementById('passwordSection');
   passwordSection.style.display = e.target.checked ? 'block' : 'none';
 }
 
-// Handle set password
+
 async function handleSetPassword() {
   const password = document.getElementById('passwordInput').value;
 
@@ -354,7 +354,7 @@ async function handleSetPassword() {
   document.getElementById('passwordInput').value = '';
 }
 
-// Handle export
+
 async function handleExport() {
   const data = await chrome.storage.local.get(null);
   const json = JSON.stringify(data, null, 2);
@@ -369,7 +369,7 @@ async function handleExport() {
   URL.revokeObjectURL(url);
 }
 
-// Handle import
+
 function handleImport() {
   const input = document.createElement('input');
   input.type = 'file';
@@ -392,7 +392,7 @@ function handleImport() {
   input.click();
 }
 
-// Handle clear data
+
 async function handleClearData() {
   if (confirm('Are you sure you want to clear ALL data? This cannot be undone.')) {
     await chrome.storage.local.clear();
@@ -401,7 +401,7 @@ async function handleClearData() {
   }
 }
 
-// Schedule modal
+
 function showScheduleModal() {
   document.getElementById('scheduleModal').style.display = 'flex';
 }
@@ -410,7 +410,7 @@ function hideScheduleModal() {
   document.getElementById('scheduleModal').style.display = 'none';
 }
 
-// Handle save schedule
+
 async function handleSaveSchedule() {
   const name = document.getElementById('scheduleName').value;
   const startTime = document.getElementById('scheduleStart').value;
@@ -435,11 +435,11 @@ async function handleSaveSchedule() {
   await loadSchedules();
   chrome.runtime.sendMessage({ action: 'updateBlockRules' });
 
-  // Clear form
+  
   document.getElementById('scheduleName').value = '';
 }
 
-// Handle duration select
+
 function handleDurationSelect(e) {
   selectedDuration = parseInt(e.target.dataset.duration);
 
@@ -451,7 +451,7 @@ function handleDurationSelect(e) {
   updateTimerDisplay(selectedDuration);
 }
 
-// Update timer display
+
 function updateTimerDisplay(minutes) {
   const mins = Math.floor(minutes);
   const secs = Math.floor((minutes % 1) * 60);
@@ -459,7 +459,7 @@ function updateTimerDisplay(minutes) {
     `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Handle start focus
+
 async function handleStartFocus() {
   await chrome.runtime.sendMessage({
     action: 'startFocusMode',
@@ -472,7 +472,7 @@ async function handleStartFocus() {
   startFocusTimer();
 }
 
-// Handle stop focus
+
 async function handleStopFocus() {
   await chrome.runtime.sendMessage({ action: 'stopFocusMode' });
 
@@ -483,9 +483,9 @@ async function handleStopFocus() {
   updateTimerDisplay(selectedDuration);
 }
 
-// Start focus timer
+
 function startFocusTimer() {
-  focusTimeRemaining = selectedDuration * 60; // Convert to seconds
+  focusTimeRemaining = selectedDuration * 60; 
 
   focusTimer = setInterval(() => {
     focusTimeRemaining--;
@@ -500,7 +500,7 @@ function startFocusTimer() {
   }, 1000);
 }
 
-// Stop focus timer
+
 function stopFocusTimer() {
   if (focusTimer) {
     clearInterval(focusTimer);
@@ -508,7 +508,7 @@ function stopFocusTimer() {
   }
 }
 
-// Update focus timer on load
+
 async function updateFocusTimer() {
   const settings = await getSettings();
 

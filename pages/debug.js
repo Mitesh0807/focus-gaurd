@@ -1,7 +1,7 @@
-// Import utilities
+
 import { getBlockedSites, getSettings, getCategories, addBlockedSite } from '../scripts/storage.js';
 
-// Load all debug info
+
 async function loadDebugInfo() {
   await checkPermissions();
   await loadActiveRules();
@@ -11,7 +11,7 @@ async function loadDebugInfo() {
   checkExtensionStatus();
 }
 
-// Check permissions
+
 async function checkPermissions() {
   const output = document.getElementById('permissionsOutput');
   const permissions = await chrome.permissions.getAll();
@@ -33,7 +33,7 @@ async function checkPermissions() {
   }, null, 2);
 }
 
-// Load active declarativeNetRequest rules
+
 async function loadActiveRules() {
   const output = document.getElementById('rulesOutput');
   const count = document.getElementById('ruleCount');
@@ -54,7 +54,7 @@ async function loadActiveRules() {
   }
 }
 
-// Load blocked sites from storage
+
 async function loadBlockedSites() {
   const output = document.getElementById('sitesOutput');
   const count = document.getElementById('siteCount');
@@ -69,7 +69,7 @@ async function loadBlockedSites() {
   }
 }
 
-// Load categories
+
 async function loadCategories() {
   const output = document.getElementById('categoriesOutput');
 
@@ -88,7 +88,7 @@ async function loadCategories() {
   }
 }
 
-// Load settings
+
 async function loadSettings() {
   const output = document.getElementById('settingsOutput');
 
@@ -100,12 +100,12 @@ async function loadSettings() {
   }
 }
 
-// Check extension status
+
 function checkExtensionStatus() {
   const status = document.getElementById('status');
   const messages = [];
 
-  // Check if background script is responsive
+  
   chrome.runtime.sendMessage({ action: 'ping' }, (response) => {
     if (chrome.runtime.lastError) {
       messages.push(`<div class="status error">❌ Background script not responding: ${chrome.runtime.lastError.message}</div>`);
@@ -116,7 +116,7 @@ function checkExtensionStatus() {
   });
 }
 
-// Test block instagram
+
 async function testBlockInstagram() {
   const status = document.getElementById('status');
 
@@ -135,7 +135,7 @@ async function testBlockInstagram() {
   }
 }
 
-// Clear all rules
+
 async function clearAllRules() {
   const status = document.getElementById('status');
 
@@ -154,14 +154,14 @@ async function clearAllRules() {
   }
 }
 
-// Fix blocking
+
 async function fixBlocking() {
   const status = document.getElementById('status');
 
   try {
     status.innerHTML = '<div class="status info">Reloading blocking rules...</div>';
 
-    // Add timeout to prevent hanging
+    
     const response = await Promise.race([
       chrome.runtime.sendMessage({ action: 'updateBlockRules' }),
       new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: Background script not responding')), 5000))
@@ -179,16 +179,16 @@ async function fixBlocking() {
   } catch (error) {
     status.innerHTML += `<div class="status error">❌ Error: ${error.message}</div>`;
     if (error.message.includes('Timeout')) {
-      status.innerHTML += '<div class="status error">💡 Background script may be crashed. Go to chrome://extensions and click "service worker" to see errors.</div>';
+      status.innerHTML += '<div class="status error">💡 Background script may be crashed. Go to chrome:
     }
   }
 }
 
-// Event listeners
+
 document.getElementById('refreshBtn').addEventListener('click', loadDebugInfo);
 document.getElementById('testBlockBtn').addEventListener('click', testBlockInstagram);
 document.getElementById('clearRulesBtn').addEventListener('click', clearAllRules);
 document.getElementById('fixBlockingBtn').addEventListener('click', fixBlocking);
 
-// Initial load
+
 document.addEventListener('DOMContentLoaded', loadDebugInfo);
