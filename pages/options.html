@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusGuard Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header>
+        <div class="header-content">
+          <h1>🛡️ FocusGuard Settings</h1>
+          <p>Configure your blocking preferences and productivity tools</p>
+        </div>
+      </header>
+
+      <!-- Navigation Tabs -->
+      <nav class="tabs">
+        <button class="tab active" data-tab="general">General</button>
+        <button class="tab" data-tab="sites">Blocked Sites</button>
+        <button class="tab" data-tab="categories">Categories</button>
+        <button class="tab" data-tab="schedules">Schedules</button>
+        <button class="tab" data-tab="focus">Focus Mode</button>
+        <button class="tab" data-tab="stats">Statistics</button>
+      </nav>
+
+      <!-- Tab Content -->
+      <main class="content">
+        <!-- General Tab -->
+        <section id="general-tab" class="tab-content active">
+          <h2>General Settings</h2>
+
+          <div class="setting-group">
+            <h3>Appearance</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <label>Dark Mode</label>
+                <p class="setting-description">
+                  Enable dark theme for the extension
+                </p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="darkMode" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <h3>Notifications</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <label>Enable Notifications</label>
+                <p class="setting-description">
+                  Show notifications when sites are blocked
+                </p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notifications" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <h3>Password Protection</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <label>Enable Password</label>
+                <p class="setting-description">
+                  Require password to change settings
+                </p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="passwordEnabled" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div id="passwordSection" style="display: none">
+              <div class="input-group">
+                <input
+                  type="password"
+                  id="passwordInput"
+                  placeholder="Set password"
+                />
+                <button id="setPasswordBtn" class="btn btn-primary">
+                  Set Password
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <h3>Data Management</h3>
+            <button class="btn btn-secondary" id="exportBtn">
+              Export Settings
+            </button>
+            <button class="btn btn-secondary" id="importBtn">
+              Import Settings
+            </button>
+            <button class="btn btn-danger" id="clearDataBtn">
+              Clear All Data
+            </button>
+          </div>
+        </section>
+
+        <!-- Blocked Sites Tab -->
+        <section id="sites-tab" class="tab-content">
+          <h2>Blocked Sites</h2>
+          <p class="tab-description">
+            Manage your manually blocked websites and paths
+          </p>
+
+          <div class="add-site-section">
+            <h3>Add New Site or Path</h3>
+            <div class="input-group-large">
+              <input
+                type="text"
+                id="siteInputOptions"
+                placeholder="example.com or youtube.com/shorts"
+              />
+              <button id="addSiteBtn" class="btn btn-primary">Add Site</button>
+            </div>
+            <p class="hint-text">
+              <strong>Examples:</strong><br />
+              • <code>facebook.com</code> - Blocks entire domain<br />
+              • <code>youtube.com/shorts</code> - Blocks only YouTube Shorts<br />
+              • <code>reddit.com/r/gaming</code> - Blocks specific subreddit
+            </p>
+          </div>
+
+          <div class="blocked-sites-section">
+            <div class="section-header">
+              <h3>Blocked Sites (<span id="sitesCount">0</span>)</h3>
+              <button id="clearAllSitesBtn" class="btn btn-secondary">
+                Clear All
+              </button>
+            </div>
+            <div id="sitesList" class="sites-list">
+              <p class="empty-state">No sites blocked yet</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Categories Tab -->
+        <section id="categories-tab" class="tab-content">
+          <h2>Category Blocking</h2>
+          <p class="tab-description">
+            Enable pre-defined category blocking for common distracting websites
+          </p>
+
+          <div id="categoriesList" class="categories-list">
+            <!-- Categories will be loaded dynamically -->
+          </div>
+        </section>
+
+        <!-- Schedules Tab -->
+        <section id="schedules-tab" class="tab-content">
+          <h2>Schedule Blocking</h2>
+          <p class="tab-description">
+            Block sites during specific times of the day
+          </p>
+
+          <button class="btn btn-primary" id="addScheduleBtn">
+            + Add Schedule
+          </button>
+
+          <div id="schedulesList" class="schedules-list">
+            <p class="empty-state">No schedules created yet</p>
+          </div>
+
+          <!-- Add Schedule Modal (hidden by default) -->
+          <div id="scheduleModal" class="modal" style="display: none">
+            <div class="modal-content">
+              <h3>Create Schedule</h3>
+              <div class="form-group">
+                <label>Schedule Name</label>
+                <input
+                  type="text"
+                  id="scheduleName"
+                  placeholder="e.g., Work Hours"
+                />
+              </div>
+              <div class="form-group">
+                <label>Start Time</label>
+                <input type="time" id="scheduleStart" value="09:00" />
+              </div>
+              <div class="form-group">
+                <label>End Time</label>
+                <input type="time" id="scheduleEnd" value="17:00" />
+              </div>
+              <div class="form-group">
+                <label>Days</label>
+                <div class="days-selector">
+                  <label><input type="checkbox" value="1" checked /> Mon</label>
+                  <label><input type="checkbox" value="2" checked /> Tue</label>
+                  <label><input type="checkbox" value="3" checked /> Wed</label>
+                  <label><input type="checkbox" value="4" checked /> Thu</label>
+                  <label><input type="checkbox" value="5" checked /> Fri</label>
+                  <label><input type="checkbox" value="6" /> Sat</label>
+                  <label><input type="checkbox" value="0" /> Sun</label>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <button class="btn btn-primary" id="saveScheduleBtn">
+                  Save Schedule
+                </button>
+                <button class="btn btn-secondary" id="cancelScheduleBtn">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Focus Mode Tab -->
+        <section id="focus-tab" class="tab-content">
+          <h2>Focus Mode (Pomodoro)</h2>
+          <p class="tab-description">
+            Start timed focus sessions to boost productivity
+          </p>
+
+          <div class="focus-timer">
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="timer-controls">
+              <button class="btn btn-large btn-primary" id="startFocusBtn">
+                Start Focus Session
+              </button>
+              <button
+                class="btn btn-large btn-danger"
+                id="stopFocusBtn"
+                style="display: none"
+              >
+                Stop Session
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <h3>Focus Duration</h3>
+            <div class="duration-selector">
+              <button class="duration-btn" data-duration="15">15 min</button>
+              <button class="duration-btn active" data-duration="25">
+                25 min
+              </button>
+              <button class="duration-btn" data-duration="30">30 min</button>
+              <button class="duration-btn" data-duration="45">45 min</button>
+              <button class="duration-btn" data-duration="60">60 min</button>
+            </div>
+          </div>
+
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-value" id="sessionsToday">0</div>
+              <div class="stat-label">Sessions Today</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="totalSessions">0</div>
+              <div class="stat-label">Total Sessions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="currentStreak">0</div>
+              <div class="stat-label">Day Streak</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Statistics Tab -->
+        <section id="stats-tab" class="tab-content">
+          <h2>Your Statistics</h2>
+          <p class="tab-description">
+            Track your blocking activity and productivity
+          </p>
+
+          <div class="stats-overview">
+            <div class="stat-card-large">
+              <div class="stat-icon">🛡️</div>
+              <div class="stat-value" id="statBlocksToday">0</div>
+              <div class="stat-label">Sites Blocked Today</div>
+            </div>
+            <div class="stat-card-large">
+              <div class="stat-icon">📊</div>
+              <div class="stat-value" id="statTotalBlocks">0</div>
+              <div class="stat-label">Total Blocks</div>
+            </div>
+            <div class="stat-card-large">
+              <div class="stat-icon">⏱️</div>
+              <div class="stat-value" id="statTimeSaved">0h</div>
+              <div class="stat-label">Estimated Time Saved</div>
+            </div>
+          </div>
+
+          <div class="recent-blocks">
+            <h3>Recently Blocked Sites</h3>
+            <div id="recentBlocksList" class="recent-list">
+              <p class="empty-state">No blocks recorded yet</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="options.js" type="module"></script>
+  </body>
+</html>

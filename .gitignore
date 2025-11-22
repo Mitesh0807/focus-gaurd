@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build files
+dist/
+build/
+*.zip
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Extension artifacts
+*.crx
+*.pem
+*.xpi
+
+# User data (don't commit personal blocking lists)
+# Uncomment if you want to ignore user data
+# rules/blocked_sites.json
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Icons (if you generate them locally)
+# Uncomment to ignore generated icons
+# assets/icons/*.png
