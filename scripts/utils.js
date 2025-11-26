@@ -71,6 +71,11 @@ export function extractDomain(url) {
   }
 }
 
+export function isDomainOnly(url) {
+  const normalized = normalizeUrl(url);
+  return !normalized.includes('/');
+}
+
 export function formatTime(minutes) {
   if (minutes < 60) {
     return `${minutes}m`;

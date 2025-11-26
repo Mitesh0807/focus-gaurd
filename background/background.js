@@ -9,6 +9,7 @@ import {
   urlMatchesPattern,
   extractDomain,
   isTimeInSchedule,
+  isDomainOnly,
 } from '../scripts/utils.js';
 import {
   DEFAULT_SETTINGS,
@@ -125,25 +126,29 @@ async function updateBlockingRules() {
       //  Block all sites during focus mode
     }
 
-    const domainsToBlock = [
-      ...new Set(urlsToBlock.map((url) => extractDomain(url))),
-    ];
-
-    console.log(
-      'FocusGuard: Blocking',
-      domainsToBlock.length,
-      'domains:',
-      domainsToBlock
-    );
+    const uniqueUrlsToBlock = [...new Set(urlsToBlock)];
 
     const allRules = [];
     let ruleId = 1;
 
-    domainsToBlock.forEach((domain) => {
+    uniqueUrlsToBlock.forEach((url) => {
       const blockPageUrl =
         chrome.runtime.getURL('pages/blocked.html') +
         '?site=' +
-        encodeURIComponent(domain);
+        encodeURIComponent(url);
+
+      let condition;
+      if (isDomainOnly(url)) {
+        condition = {
+          requestDomains: [url],
+          resourceTypes: ['main_frame'],
+        };
+      } else {
+        condition = {
+          urlFilter: `*${url}*`,
+          resourceTypes: ['main_frame'],
+        };
+      }
 
       allRules.push({
         id: ruleId++,
@@ -152,12 +157,16 @@ async function updateBlockingRules() {
           type: 'redirect',
           redirect: { url: blockPageUrl },
         },
-        condition: {
-          requestDomains: [domain],
-          resourceTypes: ['main_frame'],
-        },
+        condition: condition,
       });
     });
+
+    console.log(
+      'FocusGuard: Blocking',
+      allRules.length,
+      'rules:',
+      uniqueUrlsToBlock
+    );
 
     const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
     const existingRuleIds = existingRules.map((rule) => rule.id);

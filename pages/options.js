@@ -12,7 +12,12 @@ import {
   removeBlockedSite,
   clearAllBlockedSites,
 } from '../scripts/storage.js';
-import { formatDate, normalizeUrl, isValidUrl } from '../scripts/utils.js';
+import {
+  formatDate,
+  normalizeUrl,
+  isValidUrl,
+  isDomainOnly,
+} from '../scripts/utils.js';
 import { MESSAGE_ACTIONS, CSS_CLASSES } from '../scripts/constants.js';
 
 let selectedDuration = 25;
@@ -84,8 +89,7 @@ async function loadBlockedSites() {
 
   sitesList.innerHTML = sites
     .map((site) => {
-      const isPath = site.url.includes('/');
-      const type = isPath ? 'Path' : 'Domain';
+      const type = isDomainOnly(site.url) ? 'Domain' : 'Path';
       const addedDate = formatDate(site.addedAt);
 
       return `
