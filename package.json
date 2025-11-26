@@ -1,0 +1,39 @@
+{
+  "name": "focus-gaurd",
+  "version": "1.0.0",
+  "description": "A browser extension for Chrome, Firefox, and Edge that blocks distracting websites.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "build": "vite build",
+    "postbuild": "node scripts/postbuild.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mitesh0807/focus-gaurd.git"
+  },
+  "keywords": [
+    "focus",
+    "blocker",
+    "productivity",
+    "chrome-extension"
+  ],
+  "author": "Mitesh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mitesh0807/focus-gaurd/issues"
+  },
+  "homepage": "https://github.com/Mitesh0807/focus-gaurd#readme",
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "fs-extra": "^11.3.2",
+    "prettier": "^3.6.2",
+    "vite": "^7.2.4",
+    "vite-plugin-copy": "^0.1.6"
+  }
+}
