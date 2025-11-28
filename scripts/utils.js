@@ -43,19 +43,13 @@ export function urlMatchesPattern(url, pattern) {
   const normalizedUrl = normalizeUrl(url);
   const normalizedPattern = normalizeUrl(pattern);
 
-  if (normalizedUrl === normalizedPattern) {
-    return true;
-  }
+  const urlDomain = extractDomain(url);
+  const patternDomain = extractDomain(pattern);
 
-  if (
-    normalizedUrl.endsWith(normalizedPattern) ||
-    normalizedUrl.endsWith('.' + normalizedPattern)
-  ) {
-    return true;
-  }
-
-  if (normalizedUrl.startsWith(normalizedPattern + '/')) {
-    return true;
+  if (urlDomain === patternDomain || urlDomain.endsWith('.' + patternDomain)) {
+    const urlPath = normalizedUrl.substring(urlDomain.length);
+    const patternPath = normalizedPattern.substring(patternDomain.length);
+    return urlPath.startsWith(patternPath);
   }
 
   return false;
