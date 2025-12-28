@@ -147,7 +147,7 @@ async function updateBlockingRules() {
 				};
 			} else {
 				condition = {
-					urlFilter: `*${url}*`,
+urlFilter: `||${url}`,
 					resourceTypes: ["main_frame"],
 				};
 			}
