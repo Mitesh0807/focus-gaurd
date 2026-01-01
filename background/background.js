@@ -18,6 +18,7 @@ import {
 } from "../scripts/constants.js";
 
 let inMemoryBlockedUrls = [];
+let isListLoaded = false;
 
 chrome.runtime.onInstalled.addListener(async (details) => {
 	console.log("FocusGuard installed/updated", details.reason);
@@ -95,40 +96,49 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 	}
 });
 
+async function calculateBlockedUrls() {
+	const blockedSites = await getBlockedSites();
+	const settings = await getSettings();
+	const categories = await getCategories();
+
+	let urlsToBlock = [];
+
+	urlsToBlock.push(
+		...blockedSites.filter((site) => site.enabled).map((site) => site.url),
+	);
+
+	if (settings.workMode) {
+		Object.values(categories).forEach((category) => {
+			urlsToBlock.push(...category.sites);
+		});
+	} else {
+		Object.values(categories).forEach((category) => {
+			if (category.enabled) {
+				urlsToBlock.push(...category.sites);
+			}
+		});
+	}
+
+	if (
+		settings.focusMode &&
+		settings.focusEndTime &&
+		Date.now() < settings.focusEndTime
+	) {
+		//  Block all sites during focus mode
+		// Ideally we should have a 'block all' flag or a list of allowed sites
+		// For now, sticking to current implementation (which seems to do nothing here?)
+	}
+
+	const uniqueUrlsToBlock = [...new Set(urlsToBlock)];
+	inMemoryBlockedUrls = uniqueUrlsToBlock;
+	isListLoaded = true;
+
+	return uniqueUrlsToBlock;
+}
+
 async function updateBlockingRules() {
 	try {
-		const blockedSites = await getBlockedSites();
-		const settings = await getSettings();
-		const categories = await getCategories();
-
-		let urlsToBlock = [];
-
-		urlsToBlock.push(
-			...blockedSites.filter((site) => site.enabled).map((site) => site.url),
-		);
-
-		if (settings.workMode) {
-			Object.values(categories).forEach((category) => {
-				urlsToBlock.push(...category.sites);
-			});
-		} else {
-			Object.values(categories).forEach((category) => {
-				if (category.enabled) {
-					urlsToBlock.push(...category.sites);
-				}
-			});
-		}
-
-		if (
-			settings.focusMode &&
-			settings.focusEndTime &&
-			Date.now() < settings.focusEndTime
-		) {
-			//  Block all sites during focus mode
-		}
-
-		const uniqueUrlsToBlock = [...new Set(urlsToBlock)];
-		inMemoryBlockedUrls = uniqueUrlsToBlock;
+		const uniqueUrlsToBlock = await calculateBlockedUrls();
 
 		const allRules = [];
 		let ruleId = 1;
@@ -191,7 +201,7 @@ async function updateBlockingRules() {
 				`FocusGuard: ✅ Successfully updated! ${updatedRules.length} rules now active`,
 			);
 
-			updateBadge(urlsToBlock.length);
+			updateBadge(uniqueUrlsToBlock.length);
 		} catch (updateError) {
 			console.error("FocusGuard: ❌ FAILED to update dynamic rules!");
 			console.error("Error:", updateError);
@@ -338,11 +348,26 @@ chrome.runtime.onStartup.addListener(async () => {
 
 export { updateBlockingRules, startFocusMode, stopFocusMode };
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+	// Re-check blocked status on any update that might change content
+	// or if it's a complete load (to catch cached pages)
+	if (
+		!changeInfo.url &&
+		changeInfo.status !== "complete" &&
+		!changeInfo.title // Title changes often indicate navigation completion in SPAs
+	) {
+		return;
+	}
+
 	const urlToCheck = changeInfo.url || tab.url;
 
 	if (!urlToCheck || !urlToCheck.startsWith("http")) {
 		return;
+	}
+
+	// Ensure the blocked list is loaded (Service Worker wake-up)
+	if (!isListLoaded) {
+		await calculateBlockedUrls();
 	}
 
 	for (const pattern of inMemoryBlockedUrls) {
