@@ -147,7 +147,7 @@ async function updateBlockingRules() {
 				};
 			} else {
 				condition = {
-urlFilter: `||${url}`,
+					urlFilter: `||${url}`,
 					resourceTypes: ["main_frame"],
 				};
 			}
@@ -338,21 +338,21 @@ chrome.runtime.onStartup.addListener(async () => {
 
 export { updateBlockingRules, startFocusMode, stopFocusMode };
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-	if (!changeInfo.url || !changeInfo.url.startsWith("http")) {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+	const urlToCheck = changeInfo.url || tab.url;
+
+	if (!urlToCheck || !urlToCheck.startsWith("http")) {
 		return;
 	}
 
-	const newUrl = changeInfo.url;
-
 	for (const pattern of inMemoryBlockedUrls) {
-		if (urlMatchesPattern(newUrl, pattern)) {
+		if (urlMatchesPattern(urlToCheck, pattern)) {
 			const blockPageUrl =
 				chrome.runtime.getURL("pages/blocked.html") +
 				"?site=" +
 				encodeURIComponent(pattern);
 
-			if (newUrl !== blockPageUrl) {
+			if (urlToCheck !== blockPageUrl) {
 				chrome.tabs.update(tabId, { url: blockPageUrl });
 			}
 			return;
